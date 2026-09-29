@@ -1,0 +1,113 @@
+name: CI/CD - Scoring API
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Lint & tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+
+      - name: Lint (ruff)
+        run: uv run ruff check src tests scripts
+
+      - name: Run tests
+        run: uv run pytest -v --cov=scoring_api --cov-report=term-missing
+
+  build:
+    name: Build Docker image
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      # The production model is exported from MLflow (scripts/export_mlflow_model.py)
+      # and versioned in models/; fall back to a synthetic demo model otherwise.
+      - name: Use exported model or train demo model
+        run: |
+          if [ -f models/pipeline.joblib ] && [ -f models/metadata.json ]; then
+            echo "Modèle exporté trouvé : $(grep model_version models/metadata.json)"
+          else
+            uv sync
+            uv run python scripts/generate_synthetic_data.py
+            uv run python scripts/train_model.py
+          fi
+
+      - name: Build image
+        run: docker build -t scoring-api:${{ github.sha }} .
+
+      - name: Save image artifact
+        run: docker save scoring-api:${{ github.sha }} -o scoring-api-image.tar
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scoring-api-image
+          path: scoring-api-image.tar
+          retention-days: 3
+
+  deploy:
+    name: Deploy (simulated) & smoke test
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: scoring-api-image
+
+      - name: Load image
+        run: docker load -i scoring-api-image.tar
+
+      - name: Run container
+        run: docker run -d --name scoring-api -p 8000:8000 scoring-api:${{ github.sha }}
+
+      - name: Wait for API to be healthy
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8000/health; then
+              echo "API is up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "API did not become healthy in time" >&2
+          docker logs scoring-api
+          exit 1
+
+      - name: Smoke test /predict
+        run: |
+          curl -sf -X POST http://localhost:8000/predict \
+            -H "Content-Type: application/json" \
+            -d '{
+              "gender": "F", "own_car": true, "own_realty": true,
+              "contract_type": "Cash loans", "children": 1, "family_members": 3,
+              "income_total": 65000, "credit_amount": 180000, "annuity_amount": 12000,
+              "goods_price": 175000, "age_years": 35, "years_employed": 6,
+              "education_type": "Higher education", "family_status": "Married",
+              "housing_type": "House / apartment"
+            }' | tee /dev/stderr | grep -q '"decision"'
+
+      - name: Stop container
+        if: always()
+        run: docker rm -f scoring-api || true
