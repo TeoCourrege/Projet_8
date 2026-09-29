@@ -1,0 +1,49 @@
+[project]
+name = "scoring-api"
+version = "0.1.0"
+description = "API de scoring crédit (Prêt à Dépenser) — déploiement, monitoring et CI/CD"
+readme = "README.md"
+requires-python = ">=3.11,<3.15"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "scikit-learn>=1.5",
+    "lightgbm>=4.5",
+    "pandas>=2.2",
+    "numpy>=1.26,<2.2",
+    "joblib>=1.4",
+    "scipy>=1.13",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "httpx>=0.27",
+    "ruff>=0.7",
+]
+monitoring = [
+    "streamlit>=1.39",
+    "plotly>=5.24",
+]
+training = [
+    "mlflow>=3.0",
+    "matplotlib>=3.8",
+    "seaborn>=0.13",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/scoring_api"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
