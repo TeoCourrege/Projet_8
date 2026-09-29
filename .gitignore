@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+.env
+
+# uv
+.uv-cache/
+
+# Data & model artifacts (regenerate via scripts/, see README)
+data/raw/*.csv
+data/processed/*
+!data/processed/.gitkeep
+#models/*.joblib
+#models/*.json
+!models/.gitkeep
+
+# Local extra root CAs (see docker/certs/README.md)
+docker/certs/*.crt
+
+# Runtime logs & generated reports
+logs/*.jsonl
+!logs/.gitkeep
+monitoring_reports/*
+!monitoring_reports/.gitkeep
+
+# MLflow (legacy project)
+mlruns/
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+mlflow.db
+
+
+experiments/
