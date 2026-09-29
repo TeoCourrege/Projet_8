@@ -1,0 +1,27 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+tests/
+notebooks/
+legacy_mlops_project/
+docs/
+dashboard/
+
+# Data, MLflow store & training outputs (mounted as volumes by docker-compose)
+data/
+logs/*.jsonl
+monitoring_reports/*
+mlruns/
+experiments/
+mlflow.db
+
+.git/
+.github/
+.DS_Store
+example.env
+.env
