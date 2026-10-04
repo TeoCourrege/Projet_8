@@ -1,0 +1,3 @@
+[browser]
+# Keep everything local: no anonymous usage statistics sent to Streamlit.
+gatherUsageStats = false
