@@ -1,0 +1,27 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - ./data:/app/data
+    environment:
+      - SCORING_API_MODEL_DIR=models
+      - SCORING_API_LOG_PATH=logs/predictions.jsonl
+
+  dashboard:
+    build: .
+    command: ["sh", "-c", "uv sync --extra monitoring && .venv/bin/streamlit run dashboard/monitoring_app.py --server.address 0.0.0.0"]
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./dashboard:/app/dashboard
+    environment:
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+    depends_on:
+      - api
