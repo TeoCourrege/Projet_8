@@ -6,8 +6,11 @@ from pathlib import Path
 
 import joblib
 
+from scoring_api.fast_inference import FastScorer, build_fast_scorer
 from scoring_api.features import clients_to_frame, prepare_features
 from scoring_api.schemas import ClientData
+
+SKLEARN_ENGINE = "sklearn"
 
 
 @dataclass
@@ -18,9 +21,14 @@ class ModelBundle:
     threshold: float
     metrics: dict
     n_features: int
+    fast_scorer: FastScorer | None = None
+
+    @property
+    def inference_engine(self) -> str:
+        return self.fast_scorer.engine if self.fast_scorer else SKLEARN_ENGINE
 
 
-def load_model_bundle(model_dir: Path) -> ModelBundle:
+def load_model_bundle(model_dir: Path, fast_inference: bool = True) -> ModelBundle:
     """Load the trained pipeline once (called at API startup, never per
     request — see README "Chargement du modèle").
     """
@@ -42,10 +50,19 @@ def load_model_bundle(model_dir: Path) -> ModelBundle:
         threshold=metadata["threshold"],
         metrics=metadata.get("metrics", {}),
         n_features=metadata.get("n_features", 0),
+        # Compiled once here too (see fast_inference.py / docs/optimisation_report.md).
+        fast_scorer=build_fast_scorer(pipeline) if fast_inference else None,
     )
 
 
 def predict(bundle: ModelBundle, client: ClientData) -> float:
+    if bundle.fast_scorer is not None:
+        return bundle.fast_scorer.predict_proba(client)
+    return predict_sklearn(bundle, client)
+
+
+def predict_sklearn(bundle: ModelBundle, client: ClientData) -> float:
+    """Reference (unoptimised) path: pandas features + full sklearn pipeline."""
     df_raw = clients_to_frame([client])
     df_features = prepare_features(df_raw)
     proba = bundle.pipeline.predict_proba(df_features)[:, 1]

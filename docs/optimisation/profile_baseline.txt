@@ -1,0 +1,33 @@
+         23271575 function calls (22894808 primitive calls) in 6.966 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1163 to 25 due to restriction <25>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      300    0.011    0.000    6.978    0.023 scripts/benchmark_inference.py:258(<lambda>)
+      300    0.001    0.000    6.967    0.023 src/scoring_api/model.py:64(predict_sklearn)
+      300    0.006    0.000    3.947    0.013 src/scoring_api/features.py:171(prepare_features)
+      300    0.019    0.000    2.961    0.010 src/scoring_api/features.py:125(to_home_credit_frame)
+      300    0.001    0.000    2.832    0.009 sklearn/pipeline.py:882(predict_proba)
+ 1500/300    0.003    0.000    1.680    0.006 sklearn/utils/_set_output.py:325(wrapped)
+      300    0.007    0.000    1.679    0.006 sklearn/compose/_column_transformer.py:1009(transform)
+     7800    0.020    0.000    1.641    0.000 pandas/core/frame.py:4559(__setitem__)
+      300    0.003    0.000    1.589    0.005 sklearn/compose/_column_transformer.py:815(_call_func_on_transformers)
+     7800    0.007    0.000    1.345    0.000 pandas/core/frame.py:4864(_set_item)
+     7800    0.019    0.000    1.262    0.000 pandas/core/frame.py:4848(_set_item_mgr)
+      300    0.000    0.000    1.250    0.004 sklearn/utils/parallel.py:54(__call__)
+      300    0.001    0.000    1.249    0.004 joblib/parallel.py:1995(__call__)
+     1200    0.002    0.000    1.244    0.001 joblib/parallel.py:1914(_get_sequential_output)
+      600    0.010    0.000    1.241    0.002 sklearn/utils/parallel.py:140(__call__)
+      600    0.001    0.000    1.212    0.002 sklearn/pipeline.py:1524(_transform_one)
+      600    0.003    0.000    1.209    0.002 sklearn/pipeline.py:1069(transform)
+     7500    0.026    0.000    1.166    0.000 pandas/core/internals/managers.py:1544(insert)
+      300    0.002    0.000    1.088    0.004 sklearn/calibration.py:511(predict_proba)
+      900    0.008    0.000    1.076    0.001 sklearn/calibration.py:783(predict_proba)
+     9300    0.059    0.000    0.976    0.000 sklearn/utils/validation.py:733(check_array)
+      300    0.004    0.000    0.854    0.003 src/scoring_api/features.py:158(engineer_features)
+     4800    0.006    0.000    0.768    0.000 pandas/core/generic.py:10142(where)
+     4800    0.032    0.000    0.759    0.000 pandas/core/generic.py:9969(_where)
+      900    0.003    0.000    0.748    0.001 sklearn/utils/_response.py:117(_get_response_values)
+
+

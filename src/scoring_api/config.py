@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     model_dir: Path = Path("models")
     log_path: Path = Path("logs/predictions.jsonl")
     log_level: str = "INFO"
+    # Optimised inference path (docs/optimisation_report.md); false = plain sklearn.
+    fast_inference: bool = True
 
 
 @lru_cache

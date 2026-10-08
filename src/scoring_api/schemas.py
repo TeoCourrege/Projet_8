@@ -179,3 +179,6 @@ class ModelInfoResponse(BaseModel):
     threshold: float
     metrics: dict
     n_features: int
+    inference_engine: str = Field(
+        description="Chemin d'inférence : optimized-lightgbm, optimized-preprocessing ou sklearn"
+    )
