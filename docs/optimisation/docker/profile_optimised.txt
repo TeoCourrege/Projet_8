@@ -1,0 +1,33 @@
+         88993 function calls (87193 primitive calls) in 0.044 seconds
+
+   Ordered by: cumulative time
+   List reduced from 57 to 25 due to restriction <25>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      300    0.000    0.000    0.044    0.000 scripts/benchmark_inference.py:260(<lambda>)
+      300    0.000    0.000    0.044    0.000 src/scoring_api/model.py:58(predict)
+      300    0.001    0.000    0.044    0.000 src/scoring_api/fast_inference.py:155(predict_proba)
+      900    0.001    0.000    0.037    0.000 lightgbm/basic.py:4821(predict)
+      900    0.001    0.000    0.028    0.000 lightgbm/basic.py:1027(predict)
+      900    0.001    0.000    0.025    0.000 lightgbm/basic.py:1257(__pred_for_np2d)
+      900    0.016    0.000    0.025    0.000 lightgbm/basic.py:1216(__inner_predict_np2d)
+      300    0.002    0.000    0.004    0.000 src/scoring_api/fast_inference.py:138(transform)
+      900    0.001    0.000    0.004    0.000 lightgbm/basic.py:954(from_booster)
+ 2700/900    0.002    0.000    0.004    0.000 copy.py:119(deepcopy)
+      900    0.002    0.000    0.004    0.000 lightgbm/basic.py:676(_c_float_array)
+      900    0.001    0.000    0.003    0.000 lightgbm/basic.py:919(__init__)
+      900    0.001    0.000    0.003    0.000 copy.py:218(_deepcopy_dict)
+    13500    0.001    0.000    0.002    0.000 {built-in method builtins.isinstance}
+     1800    0.000    0.000    0.002    0.000 numpy/_core/_internal.py:279(data_as)
+      900    0.001    0.000    0.002    0.000 lightgbm/basic.py:477(_param_dict_to_str)
+      300    0.001    0.000    0.002    0.000 src/scoring_api/fast_inference.py:67(client_to_features)
+      900    0.001    0.000    0.002    0.000 lightgbm/basic.py:1187(__get_num_preds)
+      900    0.001    0.000    0.001    0.000 numpy/lib/_function_base_impl.py:1524(interp)
+     1800    0.001    0.000    0.001    0.000 ctypes/__init__.py:540(cast)
+      900    0.001    0.000    0.001    0.000 lightgbm/basic.py:174(_np2d_to_np1d)
+     7200    0.001    0.000    0.001    0.000 {method 'get' of 'dict' objects}
+     1800    0.000    0.000    0.001    0.000 lightgbm/basic.py:311(_is_numpy_1d_array)
+     1500    0.000    0.000    0.001    0.000 src/scoring_api/fast_inference.py:56(_ratio)
+     1800    0.000    0.000    0.001    0.000 <frozen abc>:117(__instancecheck__)
+
+

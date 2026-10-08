@@ -108,6 +108,11 @@ jobs:
               "housing_type": "House / apartment"
             }' | tee /dev/stderr | grep -q '"decision"'
 
+      - name: Check optimised inference is deployed
+        run: |
+          curl -sf http://localhost:8000/model/info | tee /dev/stderr \
+            | grep -q '"inference_engine":"optimized-'
+
       - name: Stop container
         if: always()
         run: docker rm -f scoring-api || true

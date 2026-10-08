@@ -128,6 +128,7 @@ def load_production_logs(log_path: Path) -> pd.DataFrame:
                 "latency_ms": r["latency_ms"],
                 "logged_at": r["logged_at"],
                 "model_version": r.get("model_version"),
+                "inference_engine": r.get("inference_engine", "sklearn"),
             }
             for r in records
         ]

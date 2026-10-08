@@ -1,0 +1,74 @@
+{
+  "generated_at": "2026-10-04T08:20:08.431031+00:00",
+  "model_version": "LightGBM-b8464ecf",
+  "inference_engine": "optimized-lightgbm",
+  "environment": {
+    "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "python": "3.13.12",
+    "cpu_count": 8,
+    "scikit-learn": "1.9.1",
+    "lightgbm": "4.7.0",
+    "numpy": "2.1.3",
+    "pandas": "3.0.6"
+  },
+  "accuracy": {
+    "n_clients": 19979,
+    "max_abs_score_diff": 0.0,
+    "decision_mismatches": 0,
+    "refusal_rate_baseline": 0.28014,
+    "refusal_rate_optimised": 0.28014,
+    "roc_auc_baseline": 0.784094,
+    "roc_auc_optimised": 0.784094
+  },
+  "inference_latency": {
+    "baseline_sklearn": {
+      "n": 1000,
+      "mean_ms": 9.0412,
+      "p50_ms": 8.8295,
+      "p95_ms": 9.5457,
+      "p99_ms": 10.2875
+    },
+    "optimised": {
+      "n": 1000,
+      "mean_ms": 0.0846,
+      "p50_ms": 0.0826,
+      "p95_ms": 0.0917,
+      "p99_ms": 0.1234
+    },
+    "speedup_p50": 106.9
+  },
+  "stages_p50_ms": {
+    "baseline": {
+      "features_pandas": 5.2091,
+      "preprocess_sklearn": 1.9731,
+      "model_predict_proba": 1.3309
+    },
+    "optimised": {
+      "features_and_preprocess_numpy": 0.0053,
+      "model": 0.075
+    }
+  },
+  "api_response_time": {
+    "baseline_sklearn": {
+      "n": 500,
+      "mean_ms": 14.6317,
+      "p50_ms": 14.1157,
+      "p95_ms": 16.2757,
+      "p99_ms": 21.692
+    },
+    "optimised": {
+      "n": 500,
+      "mean_ms": 6.7849,
+      "p50_ms": 6.5872,
+      "p95_ms": 9.2463,
+      "p99_ms": 11.1858
+    }
+  },
+  "onnx_runtime": {
+    "max_abs_score_diff": 0.3858597902465082,
+    "decision_mismatches": 621,
+    "model_step_p50_ms": 0.0204,
+    "onnxruntime_version": "1.30.0"
+  }
+}

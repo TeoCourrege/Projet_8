@@ -26,7 +26,9 @@ async def lifespan(app: FastAPI):
     # Model is loaded exactly once at startup and reused for every request —
     # loading it per-request would tank latency and memory under load.
     try:
-        app.state.model_bundle = load_model_bundle(settings.model_dir)
+        app.state.model_bundle = load_model_bundle(
+            settings.model_dir, fast_inference=settings.fast_inference
+        )
         app.state.model_load_error = None
     except FileNotFoundError as exc:
         app.state.model_bundle = None
@@ -79,6 +81,7 @@ def model_info(request: Request) -> ModelInfoResponse:
         threshold=bundle.threshold,
         metrics=bundle.metrics,
         n_features=bundle.n_features,
+        inference_engine=bundle.inference_engine,
     )
 
 
@@ -117,6 +120,7 @@ def predict_endpoint(client: ClientData, request: Request) -> PredictionResponse
             "decision": decision,
             "latency_ms": response.latency_ms,
             "model_version": bundle.version,
+            "inference_engine": bundle.inference_engine,
         },
     )
     return response

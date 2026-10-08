@@ -24,7 +24,8 @@ tests, conteneur sans modèle) — voir [Modèle de démonstration](#modèle-de-
 - [Stockage des données de production](#stockage-des-données-de-production)
 - [Historique des versions](#historique-des-versions)
 - [Modèle de démonstration (synthétique)](#modèle-de-démonstration-synthétique)
-- [Limites & pistes d'optimisation](#limites--pistes-doptimisation)
+- [Optimisation de l'inférence](#optimisation-de-linférence)
+- [Limites](#limites)
 
 ## Architecture
 
@@ -57,6 +58,7 @@ appel serait beaucoup trop lent et gourmand en mémoire sous charge.
 │   ├── features.py             # mapping API ↔ colonnes Home Credit + feature engineering
 │   │                           # (partagé par l'API et legacy_mlops_project/utils.py)
 │   ├── model.py                 # chargement du modèle / inférence
+│   ├── fast_inference.py        # inférence optimisée (pipeline compilé au démarrage)
 │   ├── config.py                 # configuration (variables d'environnement)
 │   ├── logging_utils.py           # logging structuré des prédictions
 │   └── monitoring/drift.py         # PSI / KS-test pour la détection de drift
@@ -65,6 +67,7 @@ appel serait beaucoup trop lent et gourmand en mémoire sous charge.
 │   ├── generate_synthetic_data.py  # données synthétiques (modèle de démo)
 │   ├── train_model.py               # modèle de démo -> models/
 │   ├── simulate_traffic.py           # rejoue des demandes réelles (option --drift)
+│   ├── benchmark_inference.py        # profiling + benchmark avant/après optimisation
 │   └── run_drift_analysis.py          # rapport de drift (CSV + JSON)
 ├── dashboard/monitoring_app.py         # dashboard Streamlit
 ├── tests/                                # pytest (API + feature engineering)
@@ -332,15 +335,38 @@ uv run python scripts/train_model.py               # models/ + référence drift
 Il ne sert qu'à faire tourner la chaîne de bout en bout : ses scores n'ont
 pas de valeur métier.
 
-## Limites & pistes d'optimisation
+## Optimisation de l'inférence
 
-- Le volet "optimisation post-déploiement" du sujet (profiling `cProfile`,
-  export ONNX Runtime, quantification) n'est pas couvert ici : il suppose une
-  API déjà en charge réelle avec des métriques de prod à analyser. Une fois
-  du trafic réel accumulé (`monitoring_reports/`), les pistes naturelles
-  sont : profiler `/predict` avec `cProfile`/`py-spy`, exporter le modèle
-  LightGBM calibré en ONNX pour réduire la latence d'inférence, et comparer
-  les temps de réponse avant/après sur un jeu de requêtes fixe.
+Rapport complet : [`docs/optimisation_report.md`](docs/optimisation_report.md).
+
+Le profiling (`cProfile`) a montré que ~80 % du temps d'inférence venait de
+pandas et de sklearn appliqués à une seule ligne, pas du modèle. L'API
+« compile » donc le pipeline au démarrage (`src/scoring_api/fast_inference.py`) :
+features en Python pur, prétraitement en NumPy, appel direct des arbres
+LightGBM sur un thread.
+
+| | Avant | Après |
+|---|---|---|
+| Inférence p50 (conteneur Docker) | 7,3 ms | 0,08 ms (×90) |
+| Temps de réponse API p50 | 14,2 ms | 6,7 ms |
+| Scores / décisions (19 979 clients) | — | identiques (écart 0,0) |
+
+ONNX Runtime a été testé et écarté : il change les scores (calibration
+différente). Au démarrage, l'API vérifie que le chemin optimisé donne
+exactement les scores du pipeline sklearn et revient à sklearn sinon ; le
+moteur utilisé est visible dans `GET /model/info` (`inference_engine`).
+Désactivation : `SCORING_API_FAST_INFERENCE=false`.
+
+Reproduire les mesures :
+
+```bash
+uv run python scripts/benchmark_inference.py
+```
+
+## Limites
+
 - Le logging fichier (`logs/predictions.jsonl`) n'est pas process-safe pour
   plusieurs workers Uvicorn en parallèle ; en prod, router les logs vers un
   système centralisé (cf. section stockage) lève cette limite.
+- Après optimisation, le temps de réponse est dominé par la couche HTTP
+  (~6 ms) : pistes dans le rapport d'optimisation.
